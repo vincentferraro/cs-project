@@ -1,34 +1,40 @@
 using MyApi.DTOs;
 using MyApi.Models;
-
+using MyApi.Data;
 namespace MyApi.Services;
 
 public class UserService : IUserService
 {
-    private readonly List<User> _users = new();
-    private int _nextId = 1;
+    private readonly AppDbContext _context;
 
+    public UserService(AppDbContext context)
+    {
+        _context = context;
+    }
+    
     public IEnumerable<User> GetAllUsers()
     {
-        return _users;
+        return _context.Users;
     }
 
     public User? GetUserById(int id)
     {
-        return _users.FirstOrDefault(u => u.Id == id);
+        return _context.Users.FirstOrDefault(u => u.Id == id);
 
     }
 
     public User CreateUser(CreateUserDto user)
     {
-        var newUser = new User(_nextId++, user.Name, user.Age, user.Nickname);
-        _users.Add(newUser);
+        var newUser = new User { Name = user.Name, Age = user.Age, Nickname = user.Nickname };
+
+        _context.Users.Add(newUser);
+        _context.SaveChanges();
         return newUser;
     }
 
     public User? UpdateUser(int id, UpdateUserDto user)
     {
-        var existingUser = _users.FirstOrDefault(u => u.Id == id);
+        var existingUser = _context.Users.FirstOrDefault(u => u.Id == id);
         if (existingUser == null)
         {
             return null;
@@ -38,17 +44,19 @@ public class UserService : IUserService
         existingUser.Age = user.Age;
         existingUser.Nickname = user.Nickname;
 
+        _context.SaveChanges();
         return existingUser;
     }
 
     public bool DeleteUser(int id)
     {
-        var userToRemove = _users.FirstOrDefault(u => u.Id ==id);
+        var userToRemove = _context.Users.FirstOrDefault(u => u.Id ==id);
         if (userToRemove == null)
         {
             return false;
         }
-        _users.Remove(userToRemove);
+        _context.Users.Remove(userToRemove);
+        _context.SaveChanges();
         return true;
 
 

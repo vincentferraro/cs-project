@@ -1,3 +1,13 @@
+using System.ComponentModel.DataAnnotations;
+
 namespace MyApi.DTOs;
 
-public record CreateUserDto(string Name, int Age, string Nickname);
+public class CreateUserDto{
+    
+    [Required]
+    public string Name;
+    [Required]
+    public int Age;    
+    [Required]
+    public string Nickname;
+    };
